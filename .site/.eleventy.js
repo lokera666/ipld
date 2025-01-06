@@ -8,6 +8,7 @@ const markdownItContainer = require('markdown-it-container')
 const markdownItFootnote = require('markdown-it-footnote')
 const markdownItMark = require('markdown-it-mark')
 const markdownItTOC = require('markdown-it-table-of-contents')
+const markdownItReplaceLink = require('markdown-it-replace-link')
 const nunjucks = require('nunjucks')
 const prismIpldsch = require('./prism-ipldsch')
 const loadLanguages = require('prismjs/components/')
@@ -37,18 +38,35 @@ module.exports = function (eleventyConfig) {
       .replace(/[().`,%·'"!?¿:@*]/g, '')
   }
 
+  // Inspired by https://github.com/11ty/eleventy/issues/1204
+  const replaceLocalMdLinks = function(link, env) {
+    const matcher = new RegExp('^(\./|\.\./|/)(.*?)(.md)(\#.*?)?$');
+    if (matcher.test(link)) {
+      // Pages with file name index.md are output at a different level in the
+      // directory hierarchy than other pages so we need to fix up relative links
+      // in those pages to their siblings so they connect.
+      const indexPage = env.page.inputPath.endsWith("/index.md");
+      const translatedLink = link.replace(matcher, "$1$2$4");
+      return indexPage ? translatedLink : translatedLink.replace(/^\.\/(.*?)/, "../$1")
+    } else {
+      return link;
+    }
+  }
+
   const markdownLibrary = markdownIt({
     html: true,
-    linkify: true
+    linkify: true,
+    replaceLink: replaceLocalMdLinks
   })
     .use(markdownItAnchor, {
-      permalink: true, // Generate an anchor pointing back to self, for human ease in grabbing links to sections.
+      permalink: markdownItAnchor.permalink.headerLink(), // See: https://github.com/valeriangalliat/markdown-it-anchor#header-link
       permalinkSymbol: '', // Preferable to do this with empty string, and add a visual character in CSS, because the anchor tag is placed inside the hN tag.
       permalinkSpace: false, // Again, please don't add actual text to the inside of the hN tag.
       permalinkBefore: true,
       level: [2, 3, 4, 5, 6], // h1 tags are for page titles, and are generally not useful to jump to, so don't bother making anchors for those.
       slugify
     })
+    .use(markdownItReplaceLink)
     .use(markdownItFootnote)
     .use(markdownItMark)
     .use(markdownItTOC, {

@@ -29,7 +29,7 @@ Codec implementations **MUST** do the following when encoding data in order to e
 This produces the most compact and consistent representation which will ensure that two codecs
 producing the same data end up with matching block hashes.
 
-Codec implementers should not enforce this strictness when decoding data in order to support historical data, and data produced by non-strict encoders. However, they may provide an opt-in for systems where round-trip determinism is a desireable feature and backward compatibility with old, non-strict data is unnecessary.
+Codec implementers should not enforce this strictness when decoding data in order to support historical data, and data produced by non-strict encoders. However, they may provide an opt-in for systems where round-trip determinism is a desirable feature and backward compatibility with old, non-strict data is unnecessary.
 
 ### Supported kinds
 
@@ -42,6 +42,8 @@ Bytes and Links use extensions specific to DAG-JSON. They are implemented as an 
 JSON only has a single number type. Many dynamically typed programming languages (e.g. Python, Ruby, PHP) distinguish between integers and floats when parsing JSON. JavaScript does not since all numbers are represented internally as IEEE 754 floats. A JSON number consisting of an optional leading sign (`-`) and only digits is parsed as integer, if it contains a decimal point, it's parsed as a float. For DAG-JSON the same method is used to represent integers and floats.
 
 Data Model floats that do not have a fractional component should be encoded **with** a decimal point, and will therefore be distinguishable from an integer during round-trip. (Note that since JavaScript still cannot distinguish a float from an integer where the number has no fractional component, this rule will not impact JavaScript encoding or decoding).
+
+Floats in JSON can be encoded with the exponent notation, which makes it possible to represent the same number in two different ways. For content addressed data you may restrict it to the simple decimal notation.
 
 Contrary to popular belief, JSON as a format supports Big Integers. It's only JavaScript itself that has trouble with them. This means JS implementations of DAG-JSON can't use the native JSON parser and serializer if integers bigger than `2^53 - 1` need to be supported.
 
@@ -114,7 +116,7 @@ There is no mechanism for escaping otherwise valid JSON data that takes these fo
 **[@ipld/dag-json](https://github.com/ipld/js-dag-json)**, for use with [multiformats](https://github.com/multiformats/js-multiformats) adheres to this specification.
 
 The legacy **[ipld-dag-json](https://github.com/ipld/js-ipld-dag-json)** implementation adheres to this specification, with the following caveats:
- * The reserved namespace rules above are not strictly applied. Decoding maps with the forms of Bytes and Links but with additional entries in inner or outer maps will be successfuly decoded as Bytes or Links but the extraneous entries will be ignored.
+ * The reserved namespace rules above are not strictly applied. Decoding maps with the forms of Bytes and Links but with additional entries in inner or outer maps will be successfully decoded as Bytes or Links but the extraneous entries will be ignored.
  * Bytes are encoded with their Multibase Base64 prefix `m` as per a previous version of this specification.
 
 ### Go

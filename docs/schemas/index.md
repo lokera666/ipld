@@ -41,10 +41,10 @@ These are some the biggest ones to note first, in order to get a quick impressio
 
 IPLD Schemas are founded on the principle of _structural typing_.
 Structural typing means that the names of types aren't expected to be found in the serialized data;
-instead, whether a schema matches the data or not is decided based whether the structural outline of the data matches the structural description in the schema.
+instead, whether a schema matches the data or not is decided based on whether the structural outline of the data matches the structural description in the schema.
 The practical impact of this is **IPLD Schemas can be used to describe pre-existing data**.
 
-IPLD Schemas are also noteworthy for the defintion of a _type_ (the logical view of the data)
+IPLD Schemas are also noteworthy for the definition of a _type_ (the logical view of the data)
 also requiring an associated _representation strategy_ for that type (which says how it is mapped into the IPLD [Data Model](/docs/data-model), and thence how it's serialized).
 In addition to further supporting that **IPLD Schemas can be used to describe existing protocols**,
 this lets protocol authors tune many details of their serialization (see more about this below).
