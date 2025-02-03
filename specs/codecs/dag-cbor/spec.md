@@ -41,7 +41,7 @@ The inclusion of the Multibase prefix exists for historical reasons and the iden
 
 ## Map Keys
 
-In DAG-CBOR, map keys must be strings, as defined by the [IPLD Data Model]. Other map keys, such as ints, are not supported and should be rejected when encountered.
+In DAG-CBOR, map keys must be strings. Other map keys, such as ints, are not supported and should be rejected when encountered.
 
 ## Strictness
 
@@ -59,8 +59,8 @@ Therefore the DAG-CBOR codec must:
      - If two keys have different lengths, the shorter one sorts earlier;
      - If two keys have the same length, the one with the lower value in (byte-wise) lexical order sorts earlier.
    * Indefinite-length items are not supported, only definite-length items are usable. This includes strings, bytes, lists and maps. The "break" token is also not supported.
-3. The only usable major type 7 minor types are those for encoding Floats (minors `25`, `26`, `27`), True (minor `20`), False (minor `21`) and Null (minor `22`).
-   * [Simple Values] other than True, False and Null are not supported. This includes all registered or unregistered simple values that are encoded with a major type 7 other than True, False and Null.
+3. The only usable major type 7 minor types are those for encoding Floats (minors `25`, `26`, `27`), False (minor `20`), True (minor `21`) and Null (minor `22`).
+   * [Simple Values] other than False, True and Null are not supported. This includes all registered or unregistered simple values that are encoded with a major type 7 other than False, True and Null.
    * Undefined (minor `23`) is not supported as it is not part of the [IPLD Data Model].
 4. Floating point values must always encoded in 64-bit, double-precision form, regardless of whether they can be represented as half (16) or single (32) precision.
 5. [IEEE 754] special values `NaN`, `Infinity` and `-Infinity` must not be accepted as they do not appear in the [IPLD Data Model]. Therefore, tokens `0xf97c00` (`Infinity`), `0xf97e00` (`NaN`) and `0xf9fc00` (`-Infinity`), their 16-bit, 32-bit and 64-bit variants, and any other [IEEE 754] byte layout that is interpreted as these values, should not appear, or be accepted in DAG-CBOR binary form.
@@ -104,19 +104,19 @@ Go users are encouraged to use **[go-ipld-prime]** for DAG-CBOR encoding and dec
 
 **[go-ipld-cbor]** and **[go-ipld-prime]** adhere to this specification, with the following caveats:
 
- * Strictness is not enforced on decode; as per the items listed above in [#decode-strictness](Decode strictness).
+ * Strictness is not enforced on decode; as per the items listed above in [Decode strictness](#decode-strictness).
  * [IEEE 754] special values `NaN`, `Infinity` and `-Infinity` are accepted for decode and encode.
 
 **[cbor-gen]** adheres to this specification with the following caveats:
 
- * Strictness is not enforced on decode; as per the items listed above in [#decode-strictness](Decode strictness).
+ * Strictness is not enforced on decode; as per the items listed above in [Decode strictness](#decode-strictness).
  * Map keys are sorted in alphanumeric order using [sort.Strings()] on encode.
 
 ### Java
 
 [Java IPLD from Peergos] adheres to this specification, with the following caveats:
 
- * Strictness is not enforced on decode; as per the items listed above in [#decode-strictness](Decode strictness).
+ * Strictness is not enforced on decode; as per the items listed above in [Decode strictness](#decode-strictness).
  * Floats are disabled.
 
 ## Limitations
@@ -134,7 +134,7 @@ All JavaScript numbers, both floating point and integer, (using the [`Number`] p
 
 [@ipld/dag-cbor] supports [`BigInt`] for values outside of the safe integer range, while the legacy [ipld-dag-cbor] uses the third-party [bignumber.js] library to handle these values.
 
-The implications for DAG-CBOR of these limitaitons are:
+The implications for DAG-CBOR of these limitations are:
 
  * Any integer deserialized by the JavaScript CBOR decoder greater than `Number.MAX_SAFE_INTEGER` or less than `Number.MIN_SAFE_INTEGER` will be returned as a [`BigInt`] from [@ipld/dag-cbor] or a [bignumber.js] wrapper type from [ipld-dag-cbor], which may be unexpected to users and have unexpected effects on downstream code.
  * Any `Number` serialized by the JavaScript CBOR encoder relies on a whole-number check (i.e. `Number.isInteger()`, roughly `x % 1 === 0`) to determine whether it should be encoded as an integer or a float.

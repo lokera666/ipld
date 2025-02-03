@@ -338,6 +338,99 @@ if there's several things you want in a row.
 
 ---
 
+### slice matching
+
+Matching a node that is a string or bytes can match a subset of the string or
+bytes. This is primarily helpful in the case of an ADL that reifies a complex
+representation into a simplified single string or bytes node, such as one that
+represents a multi-block bytes node as a single bytes node.
+
+#### data
+
+[testmark]:# (match-subset/data)
+```json
+"a long string that we want to match a subset of"
+```
+
+#### selector
+
+[testmark]:# (match-subset/selector)
+```json
+{
+	".": {
+		"subset": {
+			"[": 30,
+			"]": 44
+		}
+	}
+}
+```
+
+#### expected visit events
+
+[testmark]:# (match-subset/expect-visit)
+```ipldsch
+{"path": "", "node": {"string": "match a subset"}, "matched": true}
+```
+
+---
+
+### slice matching with negative indexes and extreme values
+
+Negative indexes for both "from" and "to" can be used to count from the end of
+the string or bytes node. The "to" index can be greater than the length of the
+string or bytes node, in which case it is treated as the length of the string
+or bytes node.
+
+After adjusting "from" and "to" values to the known length of the string or
+bytes node, the following rules are applied:
+
+ * Overflow of "to" is allowed and is interpreted as the end of the slice. This
+   allows for a simple way to specify a slice from a particular index to the
+   end of the slice, without needing to know the length of the slice.
+ * Underflow of "from" is allowed (which can only occur when "from" is a
+   negative that is greater than the length of the slice), and is interpreted
+   as the beginning of the slice.
+ * Overflow of "from" and underflow of "to" are not adjusted or reinterpreted.
+   These conditions will cause the selector to fail to match anything.
+ * Where the from:to range fails to match within the byte range of the node,
+   (e.g. where they select a range beyond the end of the node), or where they
+   resolve to a negative, or zero-length range (from>=to), the selector will
+   fail to match. However, in the case where from==to, the selector will
+   match, but the matched node will be an empty string or bytes.
+
+#### data
+
+[testmark]:# (match-subset-extremities/data)
+```json
+"a long string that we want to match a subset of"
+```
+
+#### selector
+
+This selector uses the max signed 64-bit integer as the "to" index as a way to
+specify the end of the string or bytes node.
+
+[testmark]:# (match-subset-extremities/selector)
+```json
+{
+	".": {
+		"subset": {
+			"[": -9,
+			"]": 9223372036854775807
+		}
+	}
+}
+```
+
+#### expected visit events
+
+[testmark]:# (match-subset-extremities/expect-visit)
+```ipldsch
+{"path": "", "node": {"string": "subset of"}, "matched": true}
+```
+
+---
 
 ### hello recursion!
 
